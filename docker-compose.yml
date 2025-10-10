@@ -15,7 +15,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   webshop-backend:
-    build: ./webshop/webshop-backend
+    build: ./webshop/webshopbackend
     container_name: webshop-backend
     depends_on:
       - postgres
