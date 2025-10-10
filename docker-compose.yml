@@ -1,0 +1,59 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: webshop-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: super
+      POSTGRES_DB: WebShop
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  webshop-backend:
+    build: ./webshop/webshop-backend
+    container_name: webshop-backend
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/WebShop
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: super
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      SERVER_PORT: 8080
+    ports:
+      - "8080:8080"
+
+#  webshop-frontend:
+#    build: ./webshop/webshop-frontend
+#    container_name: webshop-frontend
+#    depends_on:
+#      - webshop-backend
+#    ports:
+#      - "3000:3000"
+#    environment:
+#      NEXT_PUBLIC_API_URL: http://localhost:8080
+
+#  psp:
+#    build: ./psp
+#    container_name: psp
+#    depends_on:
+#      - webshop-backend
+#    ports:
+#      - "8081:8081"
+
+#  paymentservices:
+#    build: ./paymentservices
+#    container_name: paymentservices
+#    depends_on:
+#      - webshop-backend
+#    ports:
+#      - "8082:8082"
+
+volumes:
+  postgres_data:
