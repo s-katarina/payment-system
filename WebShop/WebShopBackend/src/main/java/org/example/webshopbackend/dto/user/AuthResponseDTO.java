@@ -12,11 +12,11 @@ import lombok.Setter;
 public class AuthResponseDTO {
     private String accessToken;
     private String tokenType = "Bearer ";
-    private String username;
+    private UserDTO userDTO;
 
-    public AuthResponseDTO(String accessToken, String username) {
-
+    public AuthResponseDTO(String accessToken, String id, String username, String name) {
+        UserDTO userDTO = new UserDTO(id, name, username);
         this.accessToken = accessToken;
-        this.username = username;
+        this.userDTO = userDTO;
     }
 }
