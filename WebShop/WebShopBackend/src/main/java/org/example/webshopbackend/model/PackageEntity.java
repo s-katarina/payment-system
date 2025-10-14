@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
 
 import java.util.UUID;
 
@@ -17,7 +16,6 @@ import java.util.UUID;
 @Setter
 public class PackageEntity {
 
-    @jakarta.persistence.Id
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(unique = true)

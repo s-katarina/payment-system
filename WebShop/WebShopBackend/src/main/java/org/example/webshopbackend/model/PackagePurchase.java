@@ -1,9 +1,6 @@
 package org.example.webshopbackend.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,15 +17,16 @@ import java.util.UUID;
 @Entity
 public class PackagePurchase {
 
-    @Column
+    @Id
+    @GeneratedValue
     private UUID id;  // Merchant ID
 
-    @Column
     @ManyToOne
+    @JoinColumn(name = "customer_id", nullable = false)
     private User customer;
 
-    @Column
-    @ManyToMany
+    @ManyToOne
+    @JoinColumn(name = "package_entity_id", nullable = false)
     private PackageEntity packageEntity;
 
     @Column

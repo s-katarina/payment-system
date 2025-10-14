@@ -29,15 +29,23 @@ services:
     ports:
       - "8080:8080"
 
-#  webshop-frontend:
-#    build: ./webshop/webshop-frontend
-#    container_name: webshop-frontend
-#    depends_on:
-#      - webshop-backend
-#    ports:
-#      - "3000:3000"
-#    environment:
-#      NEXT_PUBLIC_API_URL: http://localhost:8080
+  webshop-frontend:
+    build:
+      context: ./webshop/webshopfrontend/web-shop
+      dockerfile: Dockerfile
+    volumes:
+      - ./webshop/webshopfrontend/web-shop:/app
+      - /app/node_modules  # prevent overwriting node_modules from host
+    command: npm run dev
+    container_name: webshop-frontend
+    depends_on:
+      - webshop-backend
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8080
+    stdin_open: true
+    tty: true
 
 #  psp:
 #    build: ./psp

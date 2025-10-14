@@ -243,10 +243,5 @@ export function logError(error: any, context?: string): void {
 	};
 
 	console.error('[ErrorLogger]', errorInfo);
-
-	// In production, you might want to send this to an error tracking service
-	// like Sentry, LogRocket, etc.
-	if (process.env.NODE_ENV === 'production') {
-		// Example: sendToErrorTrackingService(errorInfo);
-	}
+	
 }

@@ -1,4 +1,5 @@
-import { apiService } from "./api";
+import { apiService } from "./api"
+import { API_PREFIX } from "./apiConstants";
 
 interface UserDTO {
     id: string;
@@ -16,10 +17,12 @@ interface LoginDTO {
   password: string;
 }
 
+const AUTH_PREFIX = `${API_PREFIX}/auth`;
+
 export const authService = {
   async login(username: string, password: string): Promise<AuthResponseDTO> {
     // Send POST to /login with username and password
-    const response = await apiService.post<AuthResponseDTO>("/login", {
+    const response = await apiService.post<AuthResponseDTO>(`${AUTH_PREFIX}/login`, {
       username,
       password,
     });
@@ -33,7 +36,7 @@ export const authService = {
   },
 
   async register(username: string, name: string, password: string): Promise<void> {
-    await apiService.post("/register", {
+    await apiService.post(`${AUTH_PREFIX}/register`, {
       username,
       name,
       password,

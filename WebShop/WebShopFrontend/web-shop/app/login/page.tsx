@@ -1,5 +1,6 @@
+'use client';
 import { useState } from 'react'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import { authService } from '@/service/authService';
  
 export default function LoginPage() {
@@ -36,22 +37,16 @@ export default function LoginPage() {
 }
  
   return (
-    <form onSubmit={handleSubmit}>
-	  <input
-		type="email"
-		name="email"
-		placeholder="Email"
-		required
-		onChange={e => setEmail(e.target.value)}
-	  />
-	  <input
-		type="password"
-		name="password"
-		placeholder="Password"
-		required
-		onChange={e => setPassword(e.target.value)}
-	  />
-	  <button type="submit">Login</button>
+    <form onSubmit={handleSubmit} className="form">
+      <div className="form-container">
+        <h2 className="form-title">Login</h2>
+        <input type="email" className="form-input" placeholder="Email" />
+        <input type="password" className="form-input" placeholder="Password" />
+        <button type="submit" disabled={isLoading} className="form-button">
+          {isLoading ? 'Logging in...' : 'Login'}
+        </button>
+      </div>
     </form>
+
   )
 }

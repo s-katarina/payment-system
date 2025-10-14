@@ -25,6 +25,14 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
+        String path = request.getServletPath();
+        // Skip JWT check for auth endpoints
+        if (path.startsWith("/api/v1/auth")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String token = jwtService.getJWTFromRequest(request);
         if (StringUtils.hasText(token) && jwtService.validateToken(token)) {
             String username = jwtService.getUsernameFromJWT(token);
