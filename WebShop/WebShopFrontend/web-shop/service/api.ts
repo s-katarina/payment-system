@@ -50,6 +50,9 @@ axiosInstance.interceptors.request.use(
 			const token = localStorage.getItem('access_token');
 			if (token) {
 				config.headers.Authorization = `Bearer ${token}`;
+				console.log('[API] Added Authorization header');
+				console.log('[API] Token:', token);
+				console.log(config.headers.Authorization);
 			}
 		}
 		return config;

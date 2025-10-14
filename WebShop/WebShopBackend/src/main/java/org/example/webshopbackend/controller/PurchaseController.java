@@ -20,7 +20,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @Slf4j
-@RequestMapping(value = "/api/purchase")
+@RequestMapping(value = "/api/v1/purchase")
 public class PurchaseController {
 
     private final PurchaseService purchaseService;

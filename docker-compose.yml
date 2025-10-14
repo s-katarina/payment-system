@@ -19,6 +19,8 @@ services:
     container_name: webshop-backend
     depends_on:
       - postgres
+    env_file:
+    - .env
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/WebShop
       SPRING_DATASOURCE_USERNAME: postgres

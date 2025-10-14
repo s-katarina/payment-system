@@ -139,3 +139,45 @@ h1 {
   color: #444;
   line-height: 1.7;
 }
+
+.packages-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.package-card {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  padding: 2rem;
+  min-width: 220px;
+  max-width: 300px;
+  flex: 1 1 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: box-shadow 0.2s;
+}
+
+.package-card:hover {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.16);
+}
+
+.package-card h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.3rem;
+}
+
+.package-card p {
+  margin: 0 0 1rem 0;
+  color: #555;
+}
+
+.package-card span {
+  font-weight: bold;
+  color: #0070f3;
+  font-size: 1.1rem;
+}
