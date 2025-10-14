@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     const token = localStorage.getItem('access_token');
-    if (storedUser && token) {
+    if (storedUser && storedUser !== 'undefined' && token) {
       setUserState(JSON.parse(storedUser));
       setIsAuthenticated(true);
     } else {
@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const getRedirectPath = useCallback((): string => {
-    return isAuthenticated ? '/home/page.tsx' : '/login';
+    return isAuthenticated ? '/packages' : '/unauthenticated';
   }, [isAuthenticated]);
 
   return (

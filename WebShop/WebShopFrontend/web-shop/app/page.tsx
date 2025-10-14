@@ -1,11 +1,25 @@
 'use client';
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useAuth } from './AuthContext';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
-export default function Home() {
+export default function PackagesPage() {
+  const { isAuthenticated } = useAuth();
   const router = useRouter();
+
   useEffect(() => {
-    router.replace("/home/page.tsx");
-  }, [router]);
-  return null;
+    if (!isAuthenticated) {
+      router.replace('/unauthenticated');
+    } else {
+      router.replace('/packages');
+    }
+  }, [isAuthenticated, router]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  return (
+    <></>
+  );
 }

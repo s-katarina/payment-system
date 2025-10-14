@@ -1,7 +1,8 @@
 'use client';
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { authService } from '@/service/authService';
+import toast from 'react-hot-toast';
  
 export default function LoginPage() {
 
@@ -10,6 +11,10 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    toast.error(error);
+  }, [error]);
  
   const validateEmail = (email: string) => {
 		return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -20,28 +25,44 @@ export default function LoginPage() {
 
 		if (!validateEmail(email)) {
 			setError('Please enter a proper email');
+          toast.error('Registration failed. Please try again.');
+
 			return;
 		}
-		setError('');
 		setIsLoading(true);
 		try {
 			const data = await authService.login(email, password);
-		if (data && data.accessToken) {
-			localStorage.setItem('access_token', data.accessToken);
-		}
-	} catch (error) {
-		setError('Login failed. Please try again.');
-	} finally {
-		setIsLoading(false);
-	}
+      if (data && data.accessToken) {
+        router.replace('/packages');
+        toast.success('Login successful!');
+      }
+    } catch (error) {
+      setError('Login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
 }
  
   return (
     <form onSubmit={handleSubmit} className="form">
       <div className="form-container">
         <h2 className="form-title">Login</h2>
-        <input type="email" className="form-input" placeholder="Email" />
-        <input type="password" className="form-input" placeholder="Password" />
+        <input
+          id='email'
+          type="email"
+          className="form-input"
+          placeholder="Email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+        />
+        <input
+          id='password'
+          type="password"
+          className="form-input"
+          placeholder="Password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+        />        
         <button type="submit" disabled={isLoading} className="form-button">
           {isLoading ? 'Logging in...' : 'Login'}
         </button>

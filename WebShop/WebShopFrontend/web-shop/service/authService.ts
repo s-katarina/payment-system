@@ -9,7 +9,7 @@ interface UserDTO {
 interface AuthResponseDTO {
   accessToken: string;
   tokenType: string;
-  user: UserDTO;
+  userDTO: UserDTO;
 }
 
 interface LoginDTO {
@@ -30,7 +30,7 @@ export const authService = {
     if (response.accessToken) {
       localStorage.setItem("access_token", response.accessToken);
       localStorage.setItem("token_type", response.tokenType);
-      localStorage.setItem("user", JSON.stringify(response.user));    
+      localStorage.setItem("user", JSON.stringify(response.userDTO));    
     }
     return response;
   },

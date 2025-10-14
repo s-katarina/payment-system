@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ClientAuthRedirect from "./ClientAuthRedirect";
 import NavBar from "@/components/NavBar";
+import { AuthProvider } from "./AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Wonderland Beverages",
-  description: "Webshop for Wonderland Beverages",
+  title: "Wonderland Optics",
+  description: "Webshop for Wonderland Optics",
 };
 
 export default function RootLayout({
@@ -35,7 +36,9 @@ export default function RootLayout({
       >
         {isLoggedIn ? <NavBar /> : null}
         <main style={{ flex: 1 }}>
-          <ClientAuthRedirect>{children}</ClientAuthRedirect>
+          <AuthProvider>
+            <ClientAuthRedirect>{children}</ClientAuthRedirect>
+          </AuthProvider>
         </main>
       </body>
     </html>
