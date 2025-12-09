@@ -41,16 +41,43 @@ public class User implements UserDetails {
     @Column(name = "password")
     private String password;
 
+    @Enumerated(EnumType.STRING)
     @Column(name="user_entity_role", nullable=false)
     private Role role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (role == null) {
+            System.err.println("⚠️ WARNING: User " + username + " has null role!");
+            return new ArrayList<>();
+        }
         List<Role> roles = new ArrayList<>();
         roles.add(role);
-        return roles.stream()
+        Collection<? extends GrantedAuthority> authorities = roles.stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.getAuthority()))
                 .collect(Collectors.toList());
+        System.out.println("👤 User " + username + " authorities: " + authorities);
+        return authorities;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 
 }

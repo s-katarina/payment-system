@@ -21,9 +21,9 @@ import java.util.UUID;
 @Service
 public class PurchaseService {
 
-    private UserRepository userRepository;
-    private PackagePurchaseRepository packagePurchaseRepository;
-    private PackageRepository packageRepository;
+    private final UserRepository userRepository;
+    private final PackagePurchaseRepository packagePurchaseRepository;
+    private final PackageRepository packageRepository;
 
     public BuyPackageResponseDTO buyPackage(UUID userId, UUID packageId) {
 

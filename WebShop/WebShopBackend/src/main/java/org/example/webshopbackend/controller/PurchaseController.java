@@ -26,7 +26,7 @@ public class PurchaseController {
     private final PurchaseService purchaseService;
     private final JWTService jwtService;
 
-    @PreAuthorize("hasPermission('CUSTOMER')")
+    @PreAuthorize("hasAuthority('CUSTOMER')")
     @PostMapping("/package")
     public ResponseEntity<BuyPackageResponseDTO> buyPackage(@RequestParam UUID packageId) {
 

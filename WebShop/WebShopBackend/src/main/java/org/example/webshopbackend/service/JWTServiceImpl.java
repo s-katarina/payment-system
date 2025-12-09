@@ -3,9 +3,9 @@ package org.example.webshopbackend.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import org.example.webshopbackend.model.User;
 import org.example.webshopbackend.util.constants.SecurityConstants;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,11 +17,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-
-import static io.jsonwebtoken.security.Keys.secretKeyFor;
 
 @Component
 public class JWTServiceImpl implements JWTService {
@@ -33,13 +30,12 @@ public class JWTServiceImpl implements JWTService {
 
     @PostConstruct
     public void init() {
-        // Build the SecretKey after jwtSecret is injected
-        this.secret = new SecretKeySpec(jwtSecret.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.HS512.getJcaName());
+        // Ensure secret is at least 64 characters for HS512
+        this.secret = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        System.out.println("✅ JWTServiceImpl initialized with secret length: " + jwtSecret.length());
     }
 
-
     public String generateToken() {
-
         Date currentDate = new Date();
         Date expireDate = new Date(currentDate.getTime() + SecurityConstants.JWT_EXPIRATION);
         User user = (User) getAuthenticatedUser();
@@ -49,32 +45,41 @@ public class JWTServiceImpl implements JWTService {
                 .claim("roles", user.getRole().getAuthority())
                 .setIssuedAt(currentDate)
                 .setExpiration(expireDate)
-                .signWith(SignatureAlgorithm.HS512, secret)
+                .signWith(secret, SignatureAlgorithm.HS512)
                 .compact();
     }
 
     public String getUsernameFromJWT(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(secret)
-                .parseClaimsJws(token)
-                .getBody();
-        return claims.getSubject();
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(secret)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.getSubject();
+        } catch (Exception e) {
+            throw new AuthenticationCredentialsNotFoundException("Invalid JWT token: " + e.getMessage());
+        }
     }
 
     public boolean validateToken(String token) {
         try {
-            Claims claims = Jwts.parserBuilder().setSigningKey(secret).build().parseClaimsJws(token).getBody();
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(secret)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
             Date expirationDate = claims.getExpiration();
-            Date currentDate = new Date();
-            if (expirationDate != null && expirationDate.before(currentDate)) {
-                throw new AuthenticationCredentialsNotFoundException("JWT has expired");
+            if (expirationDate != null && expirationDate.before(new Date())) {
+                return false;
             }
+
             return true;
         } catch (Exception ex) {
-            throw new AuthenticationCredentialsNotFoundException("JWT has expired or is incorrect");
+            return false;
         }
     }
-
 
     public UserDetails getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -94,6 +99,4 @@ public class JWTServiceImpl implements JWTService {
         }
         return null;
     }
-
 }
-

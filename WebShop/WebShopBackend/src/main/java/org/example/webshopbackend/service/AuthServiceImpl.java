@@ -41,14 +41,21 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponseDTO login(LoginDTO dto) {
-        User user = userRepository.findByUsername(dto.getUsername()).orElseThrow(
-                () -> new UsernameNotFoundForLoginException(dto.getUsername())
-        );
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword(), user.getAuthorities()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = jwtService.generateToken();
-        return new AuthResponseDTO(token, user.getId().toString(), user.getUsername(), user.getName());
+        try {
+            System.out.println("🔐 Attempting authentication for: " + dto.getUsername());
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            
+            User user = (User) authentication.getPrincipal();
+            System.out.println("✅ Authentication successful for: " + user.getUsername());
+            String token = jwtService.generateToken();
+            return new AuthResponseDTO(token, user.getId().toString(), user.getUsername(), user.getName());
+        } catch (org.springframework.security.core.AuthenticationException e) {
+            System.err.println("❌ Authentication failed: " + e.getMessage());
+            System.err.println("❌ Exception type: " + e.getClass().getName());
+            throw e;
+        }
     }
 
 

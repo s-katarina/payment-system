@@ -19,7 +19,7 @@ public class PackageController {
     @Autowired
     private PackageService packageService;
 
-    @PreAuthorize("hasPermission('CUSTOMER')")
+    @PreAuthorize("hasAuthority('CUSTOMER')")
     @GetMapping("all")
     public ResponseEntity<List<PackageResponseDTO>> getPackages()
     {

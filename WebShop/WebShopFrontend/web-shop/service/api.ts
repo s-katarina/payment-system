@@ -15,8 +15,8 @@ const getBackendUrl = () => {
 		return envUrl;
 	}
 
-	// Default to localhost:3000 if no environment variable is set
-	const defaultUrl = 'http://localhost:3000';
+	// Default to localhost:8080 (Spring Boot backend) if no environment variable is set
+	const defaultUrl = 'http://localhost:8080';
 	console.warn(
 		'[API] No NEXT_PUBLIC_BACKEND_URL found, using default:',
 		defaultUrl
@@ -75,9 +75,9 @@ axiosInstance.interceptors.response.use(
 
 		// Handle authentication errors specifically
 		if (apiError.status === 401) {
-                console.log('[API] 401 Unauthorized - attempting token refresh...');
-                console.log('[API] Token expired - logging out user');
-                authService.logout();
+			console.log('[API] 401 Unauthorized - attempting token refresh...');
+			console.log('[API] Token expired - logging out user');
+			authService.logout();
 		}
 
 		// Log error for debugging

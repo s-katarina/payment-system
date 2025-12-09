@@ -7,12 +7,12 @@ export interface PackageResponseDTO {
     price: number;
 }
 
-const API = `${API_PREFIX}/packages`;
+const API = `${API_PREFIX}/package`;
 
 export const packageService = {
 
     async getAllPackages(): Promise<PackageResponseDTO[]> {
-        const response = await apiService.get(`${API}`);
+        const response = await apiService.get(`${API}/all`);
         return response;
     }
 

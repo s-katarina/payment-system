@@ -12,7 +12,7 @@ import java.util.List;
 @Service
 public class PackageService {
 
-    PackageRepository packageRepository;
+    private final PackageRepository packageRepository;
     private final PackageMapper packageMapper;
 
     public List<PackageResponseDTO> getAllPackages() {

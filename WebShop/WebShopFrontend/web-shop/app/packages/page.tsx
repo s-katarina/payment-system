@@ -18,6 +18,7 @@ export default function PackagesPage() {
         try {
             const res = await packageService.getAllPackages();
             setPackages(res);
+            setLoading(false);
         } catch (err) {
             setError('Failed to fetch packages.');
         }
