@@ -25,22 +25,18 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let isLoggedIn = false;
-  if (typeof window !== "undefined") {
-    isLoggedIn = !!localStorage.getItem("access_token");
-  }
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {isLoggedIn ? <NavBar /> : null}
-        <main style={{ flex: 1 }}>
-          <AuthProvider>
+        <AuthProvider>
+          <NavBar />
+          <main style={{ flex: 1 }}>
             <ClientAuthRedirect>{children}</ClientAuthRedirect>
-          </AuthProvider>
-        </main>
-      </body>
+          </main>
+        </AuthProvider>
+    </body>
     </html>
   );
 }

@@ -11,8 +11,8 @@ export default function ClientAuthRedirect({ children }: { children: React.React
   }
 
   useEffect(() => {
-    if (!isLoggedIn && pathname !== "/login" && pathname !== "/register") {
-      router.replace("/login");
+    if (!isLoggedIn && pathname !== "/login" && pathname !== "/register" && pathname !== "/") {
+      router.replace("/");
     }
   }, [isLoggedIn, pathname, router]);
 

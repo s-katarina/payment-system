@@ -2,11 +2,13 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { authService } from '@/service/authService';
+import { useAuth } from '@/app/AuthContext';
 import toast from 'react-hot-toast';
  
 export default function LoginPage() {
 
   const router = useRouter()
+  const { setUser } = useAuth();
   const [error, setError] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,7 +35,9 @@ export default function LoginPage() {
 		try {
 			const data = await authService.login(email, password);
       if (data && data.accessToken) {
-        router.replace('/packages');
+        // Update AuthContext with the logged-in user
+        setUser(data.userDTO);
+        router.replace('/');
         toast.success('Login successful!');
       }
     } catch (error) {

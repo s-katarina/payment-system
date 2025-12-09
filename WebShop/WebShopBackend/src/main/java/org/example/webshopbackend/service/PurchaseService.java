@@ -2,6 +2,7 @@ package org.example.webshopbackend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.webshopbackend.dto.payment.BuyPackageResponseDTO;
+import org.example.webshopbackend.dto.payment.PurchasedPackageDTO;
 import org.example.webshopbackend.exception.PackageDoesNotExistByIdException;
 import org.example.webshopbackend.exception.user.UserDoesNotExistByIdException;
 import org.example.webshopbackend.model.PackageEntity;
@@ -15,7 +16,9 @@ import org.example.webshopbackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -58,8 +61,24 @@ public class PurchaseService {
         // Get message in MQ, update purchase status
     }
 
-    public void getPurchases(UUID userId) {
+    public List<PurchasedPackageDTO> getPurchases(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserDoesNotExistByIdException(userId));
 
+        List<PackagePurchase> purchases = packagePurchaseRepository.findByCustomer(user);
+
+        return purchases.stream()
+                .map(purchase -> {
+                    PurchasedPackageDTO dto = new PurchasedPackageDTO();
+                    dto.setPurchaseId(purchase.getId());
+                    dto.setPackageId(purchase.getPackageEntity().getId());
+                    dto.setPackageName(purchase.getPackageEntity().getPackageName());
+                    dto.setPrice(purchase.getAmount());
+                    dto.setPurchaseDate(purchase.getPurchaseDate());
+                    dto.setStatus(purchase.getStatus());
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
 }
