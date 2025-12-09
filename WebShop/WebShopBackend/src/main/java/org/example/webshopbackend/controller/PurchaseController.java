@@ -3,21 +3,17 @@ package org.example.webshopbackend.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.webshopbackend.dto.payment.BuyPackageResponseDTO;
-import org.example.webshopbackend.dto.payment.PurchasedPackageDTO;
 import org.example.webshopbackend.model.User;
 import org.example.webshopbackend.service.JWTService;
-import org.example.webshopbackend.service.PackageService;
 import org.example.webshopbackend.service.PurchaseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -36,12 +32,5 @@ public class PurchaseController {
         User user = (User) jwtService.getAuthenticatedUser();
 
         return new ResponseEntity<>(purchaseService.buyPackage(user.getId(), packageId), HttpStatus.OK);
-    }
-
-    @PreAuthorize("hasAuthority('CUSTOMER')")
-    @GetMapping("/purchased")
-    public ResponseEntity<List<PurchasedPackageDTO>> getPurchasedPackages() {
-        User user = (User) jwtService.getAuthenticatedUser();
-        return new ResponseEntity<>(purchaseService.getPurchases(user.getId()), HttpStatus.OK);
     }
 }

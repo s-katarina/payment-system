@@ -46,7 +46,7 @@ public class PurchaseService {
         PackagePurchase savedPurchase = packagePurchaseRepository.save(purchase);
 
         // Synchronous request to PSP
-        // with merchantId, apiKey, merchantOrderId, amount, merchantTimestamp
+        // with merchantId, apiKey, merchantOrderId, amount, currency (set here in webshop), merchantTimestamp
         // Response from PSP with redirectURL to PSP
 
         String redirectLink = "";

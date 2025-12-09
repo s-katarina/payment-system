@@ -2,7 +2,11 @@ package org.example.webshopbackend.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.webshopbackend.dto.packages.PackageResponseDTO;
+import org.example.webshopbackend.dto.payment.PurchasedPackageDTO;
+import org.example.webshopbackend.model.User;
+import org.example.webshopbackend.service.JWTService;
 import org.example.webshopbackend.service.PackageService;
+import org.example.webshopbackend.service.PurchaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +23,12 @@ public class PackageController {
     @Autowired
     private PackageService packageService;
 
+    @Autowired
+    private PurchaseService purchaseService;
+
+    @Autowired
+    private JWTService jwtService;
+
     @PreAuthorize("hasAuthority('CUSTOMER')")
     @GetMapping("all")
     public ResponseEntity<List<PackageResponseDTO>> getPackages()
@@ -26,6 +36,11 @@ public class PackageController {
         return new ResponseEntity<>(packageService.getAllPackages(), HttpStatus.OK);
     }
 
-
+    @PreAuthorize("hasAuthority('CUSTOMER')")
+    @GetMapping("/purchased")
+    public ResponseEntity<List<PurchasedPackageDTO>> getPurchasedPackages() {
+        User user = (User) jwtService.getAuthenticatedUser();
+        return new ResponseEntity<>(purchaseService.getPurchases(user.getId()), HttpStatus.OK);
+    }
 
 }

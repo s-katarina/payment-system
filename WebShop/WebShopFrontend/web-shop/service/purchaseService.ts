@@ -15,6 +15,7 @@ export interface PurchasedPackageDTO {
 }
 
 const PURCHASE_API = `${API_PREFIX}/purchase`;
+const PACKAGE_API = `${API_PREFIX}/package`;
 
 export const purchaseService = {
     async buyPackage(packageId: string): Promise<BuyPackageResponseDTO> {
@@ -25,7 +26,7 @@ export const purchaseService = {
     },
     async getPurchasedPackages(): Promise<PurchasedPackageDTO[]> {
         const response = await apiService.get<PurchasedPackageDTO[]>(
-            `${PURCHASE_API}/purchased`
+            `${PACKAGE_API}/purchased`
         );
         return response;
     }
