@@ -2,6 +2,7 @@ package org.example.pspbackend.advice;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.pspbackend.exception.InvalidMerchantCredentialsException;
+import org.example.pspbackend.exception.MerchantInactiveException;
 import org.example.pspbackend.exception.MerchantNotFoundException;
 import org.example.pspbackend.exception.PaymentMethodNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,16 @@ public class PaymentExceptionHandler {
         error.put("error", "Merchant not found");
         error.put("message", ex.getMessage());
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(MerchantInactiveException.class)
+    public ResponseEntity<Map<String, String>> handleMerchantInactive(
+            MerchantInactiveException ex) {
+        log.error("Merchant is inactive: {}", ex.getMessage());
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Merchant is inactive");
+        error.put("message", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(PaymentMethodNotFoundException.class)

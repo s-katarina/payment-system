@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.pspbackend.dto.payment.CreatePaymentRequestDTO;
 import org.example.pspbackend.dto.payment.CreatePaymentResponseDTO;
 import org.example.pspbackend.exception.InvalidMerchantCredentialsException;
+import org.example.pspbackend.exception.MerchantInactiveException;
 import org.example.pspbackend.model.Merchant;
 import org.example.pspbackend.model.Payment;
 import org.example.pspbackend.model.enums.PaymentStatus;
@@ -35,6 +36,11 @@ public class PaymentService {
         }
 
         Merchant merchant = (Merchant) authentication.getPrincipal();
+
+        // Check if merchant is active
+        if (merchant.getActive() == null || !merchant.getActive()) {
+            throw new MerchantInactiveException("Merchant is inactive and cannot process payments");
+        }
 
         // Create and save payment
         Payment payment = new Payment();

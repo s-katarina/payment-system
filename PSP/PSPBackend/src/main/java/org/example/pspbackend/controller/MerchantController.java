@@ -69,11 +69,11 @@ public class MerchantController {
 
     @DeleteMapping("/{merchantId}")
     public ResponseEntity<Void> deleteMerchant(@PathVariable String merchantId) {
-        log.info("Deleting merchant with ID: {}", merchantId);
+        log.info("Deactivating merchant with ID: {}", merchantId);
         
         merchantService.deleteMerchant(merchantId);
         
-        log.info("Merchant deleted successfully with ID: {}", merchantId);
+        log.info("Merchant deactivated successfully with ID: {}", merchantId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

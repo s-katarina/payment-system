@@ -38,6 +38,9 @@ public class Merchant {
     @Column(name = "error_url", nullable = false)
     private String errorUrl;
 
+    @Column(name = "active", nullable = false)
+    private Boolean active = true; // Default to true for new merchants
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "merchant_payment_methods",

@@ -1,8 +1,8 @@
 -- Sample merchant data for testing
 -- Note: In production, merchant passwords should be hashed
-INSERT INTO merchants (merchant_id, merchant_name, merchant_password, currency, success_url, fail_url, error_url)
+INSERT INTO merchants (merchant_id, merchant_name, merchant_password, currency, success_url, fail_url, error_url, active)
 VALUES 
-    ('webshop-merchant-1', 'WebShop Merchant 1', 'merchant-password-123', 'USD', 'http://localhost:3000/payment/success', 'http://localhost:3000/payment/fail', 'http://localhost:3000/payment/error')
+    ('webshop-merchant-1', 'WebShop Merchant 1', 'merchant-password-123', 'USD', 'http://localhost:3000/payment/success', 'http://localhost:3000/payment/fail', 'http://localhost:3000/payment/error', true)
 ON CONFLICT (merchant_id) DO NOTHING;
 
 -- Payment method data

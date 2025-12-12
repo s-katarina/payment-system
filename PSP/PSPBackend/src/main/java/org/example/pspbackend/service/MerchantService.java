@@ -81,7 +81,9 @@ public class MerchantService {
     public void deleteMerchant(String merchantId) {
         Merchant merchant = merchantRepository.findById(merchantId)
                 .orElseThrow(() -> new MerchantNotFoundException("Merchant not found with ID: " + merchantId));
-        merchantRepository.delete(merchant);
+        // Soft delete: set active flag to false instead of actually deleting
+        merchant.setActive(false);
+        merchantRepository.save(merchant);
     }
 
     @Transactional
