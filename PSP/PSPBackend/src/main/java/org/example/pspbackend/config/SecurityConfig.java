@@ -3,6 +3,7 @@ package org.example.pspbackend.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -13,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.example.pspbackend.auth.MerchantApiKeyAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -41,6 +43,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/merchant/**").hasRole("ADMIN")
                 // Payment endpoints are public (merchants authenticate with API key)
                 .requestMatchers("/api/v1/payment/**").permitAll()
+                // Payment method GET endpoint is public (for frontend to fetch available methods)
+                .requestMatchers(HttpMethod.GET, "/api/v1/payment-method").permitAll()
+                // Payment method create endpoint requires ADMIN (handled by @PreAuthorize on method)
                 // All other requests require authentication
                 .anyRequest().authenticated()
             )

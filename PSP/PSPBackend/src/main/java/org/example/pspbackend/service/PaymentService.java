@@ -35,19 +35,12 @@ public class PaymentService {
                 "Invalid merchant credentials for merchant ID: " + request.getMerchantId()
         ));
 
-        // Validate currency matches merchant's currency
-        if (!merchant.getCurrency().equalsIgnoreCase(request.getCurrency())) {
-            throw new IllegalArgumentException(
-                    "Currency mismatch. Merchant supports: " + merchant.getCurrency()
-            );
-        }
-
         // Create and save payment
         Payment payment = new Payment();
         payment.setMerchantId(request.getMerchantId());
         payment.setMerchantOrderId(request.getMerchantOrderId());
         payment.setAmount(request.getAmount());
-        payment.setCurrency(request.getCurrency());
+        payment.setCurrency(merchant.getCurrency()); // Use currency from merchant entity
         payment.setMerchantTimestamp(request.getMerchantTimestamp());
         payment.setCallbackUrl(request.getCallbackUrl());
 

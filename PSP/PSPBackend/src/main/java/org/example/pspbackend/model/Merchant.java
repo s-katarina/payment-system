@@ -5,6 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 @Entity
 @Table(name = "merchants")
 @Data
@@ -33,5 +37,13 @@ public class Merchant {
 
     @Column(name = "error_url", nullable = false)
     private String errorUrl;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "merchant_payment_methods",
+            joinColumns = @JoinColumn(name = "merchant_id"),
+            inverseJoinColumns = @JoinColumn(name = "payment_method_id")
+    )
+    private Set<PaymentMethod> paymentMethods = new HashSet<>();
 }
 

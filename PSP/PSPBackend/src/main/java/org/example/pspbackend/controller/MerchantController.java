@@ -7,11 +7,14 @@ import org.example.pspbackend.dto.merchant.CreateMerchantRequestDTO;
 import org.example.pspbackend.dto.merchant.CreateMerchantResponseDTO;
 import org.example.pspbackend.dto.merchant.GeneratePasswordResponseDTO;
 import org.example.pspbackend.dto.merchant.UpdateMerchantRequestDTO;
+import org.example.pspbackend.dto.paymentmethod.PaymentMethodResponseDTO;
 import org.example.pspbackend.service.MerchantService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -63,6 +66,16 @@ public class MerchantController {
         
         log.info("New password generated for merchant with ID: {}", merchantId);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/{merchantId}/payment-methods")
+    public ResponseEntity<List<PaymentMethodResponseDTO>> getPaymentMethodsForMerchant(@PathVariable String merchantId) {
+        log.info("Fetching payment methods for merchant with ID: {}", merchantId);
+        
+        List<PaymentMethodResponseDTO> paymentMethods = merchantService.getPaymentMethodsForMerchant(merchantId);
+        
+        log.info("Found {} payment methods for merchant with ID: {}", paymentMethods.size(), merchantId);
+        return new ResponseEntity<>(paymentMethods, HttpStatus.OK);
     }
 }
 

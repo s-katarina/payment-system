@@ -4,8 +4,13 @@ import org.example.pspbackend.dto.merchant.CreateMerchantRequestDTO;
 import org.example.pspbackend.dto.merchant.CreateMerchantResponseDTO;
 import org.example.pspbackend.dto.merchant.GeneratePasswordResponseDTO;
 import org.example.pspbackend.dto.merchant.UpdateMerchantRequestDTO;
+import org.example.pspbackend.dto.paymentmethod.PaymentMethodResponseDTO;
 import org.example.pspbackend.model.Merchant;
+import org.example.pspbackend.model.PaymentMethod;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class MerchantMapper {
@@ -36,6 +41,27 @@ public class MerchantMapper {
         dto.setSuccessUrl(merchant.getSuccessUrl());
         dto.setFailUrl(merchant.getFailUrl());
         dto.setErrorUrl(merchant.getErrorUrl());
+        
+        // Map payment methods
+        if (merchant.getPaymentMethods() != null) {
+            List<PaymentMethodResponseDTO> paymentMethodDTOs = merchant.getPaymentMethods().stream()
+                    .map(this::mapPaymentMethodToResponse)
+                    .collect(Collectors.toList());
+            dto.setPaymentMethods(paymentMethodDTOs);
+        }
+        
+        return dto;
+    }
+    
+    /**
+     * Maps PaymentMethod entity to PaymentMethodResponseDTO
+     */
+    public PaymentMethodResponseDTO mapPaymentMethodToResponse(PaymentMethod paymentMethod) {
+        PaymentMethodResponseDTO dto = new PaymentMethodResponseDTO();
+        dto.setId(paymentMethod.getId());
+        dto.setName(paymentMethod.getName());
+        dto.setServiceName(paymentMethod.getServiceName());
+        dto.setServiceUrl(paymentMethod.getServiceUrl());
         return dto;
     }
 
