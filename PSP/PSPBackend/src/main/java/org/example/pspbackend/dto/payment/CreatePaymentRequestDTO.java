@@ -14,11 +14,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class CreatePaymentRequestDTO {
 
-    @NotBlank(message = "Merchant ID is required")
-    private String merchantId;
-
-    @NotBlank(message = "API Key is required")
-    private String apiKey;
+    // merchantId and apiKey are in headers (X-Merchant-Id, X-API-Key)
 
     @NotBlank(message = "Merchant Order ID is required")
     private String merchantOrderId;

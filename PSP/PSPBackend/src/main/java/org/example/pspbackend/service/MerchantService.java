@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.pspbackend.dto.merchant.CreateMerchantRequestDTO;
 import org.example.pspbackend.dto.merchant.CreateMerchantResponseDTO;
 import org.example.pspbackend.dto.merchant.GeneratePasswordResponseDTO;
+import org.example.pspbackend.dto.merchant.MerchantResponseDTO;
 import org.example.pspbackend.dto.merchant.UpdateMerchantRequestDTO;
 import org.example.pspbackend.dto.paymentmethod.PaymentMethodResponseDTO;
 import org.example.pspbackend.exception.MerchantNotFoundException;
@@ -104,6 +105,24 @@ public class MerchantService {
         return merchant.getPaymentMethods().stream()
                 .map(merchantMapper::mapPaymentMethodToResponse)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Gets all merchants (without passwords)
+     */
+    public List<MerchantResponseDTO> getAllMerchants() {
+        return merchantRepository.findAll().stream()
+                .map(merchantMapper::mapMerchantToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Gets a merchant by ID (without password)
+     */
+    public MerchantResponseDTO getMerchantById(String merchantId) {
+        Merchant merchant = merchantRepository.findById(merchantId)
+                .orElseThrow(() -> new MerchantNotFoundException("Merchant not found with ID: " + merchantId));
+        return merchantMapper.mapMerchantToResponseDTO(merchant);
     }
 
     /**

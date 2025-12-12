@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.pspbackend.dto.merchant.CreateMerchantRequestDTO;
 import org.example.pspbackend.dto.merchant.CreateMerchantResponseDTO;
 import org.example.pspbackend.dto.merchant.GeneratePasswordResponseDTO;
+import org.example.pspbackend.dto.merchant.MerchantResponseDTO;
 import org.example.pspbackend.dto.merchant.UpdateMerchantRequestDTO;
 import org.example.pspbackend.dto.paymentmethod.PaymentMethodResponseDTO;
 import org.example.pspbackend.service.MerchantService;
@@ -24,6 +25,26 @@ import java.util.List;
 public class MerchantController {
 
     private final MerchantService merchantService;
+
+    @GetMapping
+    public ResponseEntity<List<MerchantResponseDTO>> getAllMerchants() {
+        log.info("Fetching all merchants");
+        
+        List<MerchantResponseDTO> merchants = merchantService.getAllMerchants();
+        
+        log.info("Found {} merchants", merchants.size());
+        return new ResponseEntity<>(merchants, HttpStatus.OK);
+    }
+
+    @GetMapping("/{merchantId}")
+    public ResponseEntity<MerchantResponseDTO> getMerchantById(@PathVariable String merchantId) {
+        log.info("Fetching merchant with ID: {}", merchantId);
+        
+        MerchantResponseDTO merchant = merchantService.getMerchantById(merchantId);
+        
+        log.info("Merchant found with ID: {}", merchantId);
+        return new ResponseEntity<>(merchant, HttpStatus.OK);
+    }
 
     @PostMapping("/create")
     public ResponseEntity<CreateMerchantResponseDTO> createMerchant(

@@ -7,12 +7,15 @@ import org.example.pspbackend.dto.paymentmethod.UpdatePaymentMethodRequestDTO;
 import org.example.pspbackend.dto.paymentmethod.UpdatePaymentMethodServiceUrlRequestDTO;
 import org.example.pspbackend.exception.PaymentMethodNotFoundException;
 import org.example.pspbackend.mapper.PaymentMethodMapper;
+import org.example.pspbackend.model.Merchant;
 import org.example.pspbackend.model.PaymentMethod;
 import org.example.pspbackend.repository.PaymentMethodRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -46,6 +49,16 @@ public class PaymentMethodService {
         paymentMethodMapper.updatePaymentMethodServiceUrlFromDto(paymentMethod, request);
         PaymentMethod updatedPaymentMethod = paymentMethodRepository.save(paymentMethod);
         return paymentMethodMapper.mapPaymentMethodToResponse(updatedPaymentMethod);
+    }
+
+    /**
+     * Gets all payment methods for the authenticated merchant
+     */
+    public List<PaymentMethodResponseDTO> getPaymentMethodsForMerchant(Merchant merchant) {
+        // Get payment methods from merchant's ManyToMany relationship
+        return merchant.getPaymentMethods().stream()
+                .map(paymentMethodMapper::mapPaymentMethodToResponse)
+                .collect(Collectors.toList());
     }
 }
 

@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.example.pspbackend.auth.MerchantApiKeyAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -33,19 +34,27 @@ public class SecurityConfig {
     @Value("${psp.admin.password:admin}")
     private String adminPassword;
 
+    private final MerchantApiKeyAuthenticationFilter merchantApiKeyAuthenticationFilter;
+
+    public SecurityConfig(MerchantApiKeyAuthenticationFilter merchantApiKeyAuthenticationFilter) {
+        this.merchantApiKeyAuthenticationFilter = merchantApiKeyAuthenticationFilter;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            // Add merchant API key authentication filter before other filters
+            .addFilterBefore(merchantApiKeyAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
                 // Merchant endpoints require ADMIN role
                 .requestMatchers("/api/v1/merchant/**").hasRole("ADMIN")
-                // Payment endpoints are public (merchants authenticate with API key)
-                .requestMatchers("/api/v1/payment/**").permitAll()
-                // Payment method GET endpoint is public (for frontend to fetch available methods)
-                .requestMatchers(HttpMethod.GET, "/api/v1/payment-method").permitAll()
-                // Payment method create endpoint requires ADMIN (handled by @PreAuthorize on method)
+                // Payment endpoints require MERCHANT role (authenticated via API key in headers)
+                .requestMatchers("/api/v1/payment/**").hasRole("MERCHANT")
+                // Payment method GET endpoint requires MERCHANT role (merchants fetch their own methods)
+                .requestMatchers(HttpMethod.GET, "/api/v1/payment-method").hasRole("MERCHANT")
+                // Payment method create/update endpoints require ADMIN (handled by @PreAuthorize on methods)
                 // All other requests require authentication
                 .anyRequest().authenticated()
             )

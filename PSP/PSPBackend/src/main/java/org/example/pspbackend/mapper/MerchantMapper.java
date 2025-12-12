@@ -3,8 +3,10 @@ package org.example.pspbackend.mapper;
 import org.example.pspbackend.dto.merchant.CreateMerchantRequestDTO;
 import org.example.pspbackend.dto.merchant.CreateMerchantResponseDTO;
 import org.example.pspbackend.dto.merchant.GeneratePasswordResponseDTO;
+import org.example.pspbackend.dto.merchant.MerchantResponseDTO;
 import org.example.pspbackend.dto.merchant.UpdateMerchantRequestDTO;
 import org.example.pspbackend.dto.paymentmethod.PaymentMethodResponseDTO;
+import org.example.pspbackend.dto.paymentmethod.PaymentMethodSimpleDTO;
 import org.example.pspbackend.model.Merchant;
 import org.example.pspbackend.model.PaymentMethod;
 import org.springframework.stereotype.Component;
@@ -84,6 +86,40 @@ public class MerchantMapper {
         GeneratePasswordResponseDTO dto = new GeneratePasswordResponseDTO();
         dto.setMerchantId(merchantId);
         dto.setNewPassword(newPassword);
+        return dto;
+    }
+
+    /**
+     * Maps Merchant entity to MerchantResponseDTO (without password)
+     */
+    public MerchantResponseDTO mapMerchantToResponseDTO(Merchant merchant) {
+        MerchantResponseDTO dto = new MerchantResponseDTO();
+        dto.setMerchantId(merchant.getMerchantId());
+        dto.setMerchantName(merchant.getMerchantName());
+        dto.setCurrency(merchant.getCurrency());
+        dto.setSuccessUrl(merchant.getSuccessUrl());
+        dto.setFailUrl(merchant.getFailUrl());
+        dto.setErrorUrl(merchant.getErrorUrl());
+        
+        // Map payment methods to simplified DTOs
+        if (merchant.getPaymentMethods() != null) {
+            List<PaymentMethodSimpleDTO> paymentMethodDTOs = merchant.getPaymentMethods().stream()
+                    .map(this::mapPaymentMethodToSimpleResponse)
+                    .collect(Collectors.toList());
+            dto.setPaymentMethods(paymentMethodDTOs);
+        }
+        
+        return dto;
+    }
+
+    /**
+     * Maps PaymentMethod entity to PaymentMethodSimpleDTO (id, name, serviceName only)
+     */
+    public PaymentMethodSimpleDTO mapPaymentMethodToSimpleResponse(PaymentMethod paymentMethod) {
+        PaymentMethodSimpleDTO dto = new PaymentMethodSimpleDTO();
+        dto.setId(paymentMethod.getId());
+        dto.setName(paymentMethod.getName());
+        dto.setServiceName(paymentMethod.getServiceName());
         return dto;
     }
 }

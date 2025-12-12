@@ -8,6 +8,7 @@ import org.example.pspbackend.dto.payment.CreatePaymentResponseDTO;
 import org.example.pspbackend.service.PaymentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,10 +23,10 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('MERCHANT')")
     public ResponseEntity<CreatePaymentResponseDTO> createPayment(
             @Valid @RequestBody CreatePaymentRequestDTO request) {
-        log.info("Creating payment for merchant: {}, order: {}", 
-                request.getMerchantId(), request.getMerchantOrderId());
+        log.info("Creating payment for order: {}", request.getMerchantOrderId());
         
         CreatePaymentResponseDTO response = paymentService.createPayment(request);
         

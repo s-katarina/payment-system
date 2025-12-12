@@ -4,22 +4,19 @@ import lombok.RequiredArgsConstructor;
 import org.example.pspbackend.dto.payment.CreatePaymentRequestDTO;
 import org.example.pspbackend.dto.payment.CreatePaymentResponseDTO;
 import org.example.pspbackend.exception.InvalidMerchantCredentialsException;
-import org.example.pspbackend.exception.MerchantNotFoundException;
 import org.example.pspbackend.model.Merchant;
 import org.example.pspbackend.model.Payment;
-import org.example.pspbackend.repository.MerchantRepository;
 import org.example.pspbackend.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
 public class PaymentService {
 
-    private final MerchantRepository merchantRepository;
     private final PaymentRepository paymentRepository;
 
     @Value("${psp.base-url:http://localhost:8081}")
@@ -27,17 +24,18 @@ public class PaymentService {
 
     @Transactional
     public CreatePaymentResponseDTO createPayment(CreatePaymentRequestDTO request) {
-        // Validate merchant credentials
-        Merchant merchant = merchantRepository.findByMerchantIdAndMerchantPassword(
-                request.getMerchantId(),
-                request.getApiKey()
-        ).orElseThrow(() -> new InvalidMerchantCredentialsException(
-                "Invalid merchant credentials for merchant ID: " + request.getMerchantId()
-        ));
+        // Get authenticated merchant from SecurityContext (set by MerchantApiKeyAuthenticationFilter)
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (authentication == null || !(authentication.getPrincipal() instanceof Merchant)) {
+            throw new InvalidMerchantCredentialsException("Merchant not authenticated");
+        }
+
+        Merchant merchant = (Merchant) authentication.getPrincipal();
 
         // Create and save payment
         Payment payment = new Payment();
-        payment.setMerchantId(request.getMerchantId());
+        payment.setMerchantId(merchant.getMerchantId());
         payment.setMerchantOrderId(request.getMerchantOrderId());
         payment.setAmount(request.getAmount());
         payment.setCurrency(merchant.getCurrency()); // Use currency from merchant entity
