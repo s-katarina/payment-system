@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.pspbackend.model.Merchant;
 import org.example.pspbackend.repository.MerchantRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,6 +35,7 @@ import java.util.Collections;
 public class MerchantApiKeyAuthenticationFilter extends OncePerRequestFilter {
 
     private final MerchantRepository merchantRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, 
@@ -45,10 +47,12 @@ public class MerchantApiKeyAuthenticationFilter extends OncePerRequestFilter {
         // Only process if both headers are present
         if (StringUtils.hasText(merchantId) && StringUtils.hasText(apiKey)) {
             try {
-                Merchant merchant = merchantRepository.findByMerchantIdAndMerchantPassword(merchantId, apiKey)
+                // Find merchant by ID only (password is hashed, so we can't query by it)
+                Merchant merchant = merchantRepository.findById(merchantId)
                         .orElse(null);
 
-                if (merchant != null) {
+                // Verify API key using BCrypt password matching
+                if (merchant != null && passwordEncoder.matches(apiKey, merchant.getMerchantPassword())) {
                     // Create authentication object
                     // MERCHANT role to distinguish from ADMIN users
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(

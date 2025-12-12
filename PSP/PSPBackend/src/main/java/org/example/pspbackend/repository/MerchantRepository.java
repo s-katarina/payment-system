@@ -8,6 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface MerchantRepository extends JpaRepository<Merchant, String> {
-    Optional<Merchant> findByMerchantIdAndMerchantPassword(String merchantId, String merchantPassword);
+    // Note: Password comparison is done using BCrypt in MerchantApiKeyAuthenticationFilter
+    // We don't query by password since it's hashed
 }
 

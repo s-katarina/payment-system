@@ -14,6 +14,7 @@ import org.example.pspbackend.model.Merchant;
 import org.example.pspbackend.model.PaymentMethod;
 import org.example.pspbackend.repository.MerchantRepository;
 import org.example.pspbackend.repository.PaymentMethodRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,7 @@ public class MerchantService {
     private final MerchantRepository merchantRepository;
     private final PaymentMethodRepository paymentMethodRepository;
     private final MerchantMapper merchantMapper;
+    private final PasswordEncoder passwordEncoder;
     private static final SecureRandom secureRandom = new SecureRandom();
     private static final int API_KEY_LENGTH = 32; // 32 bytes = 44 characters when base64 encoded
 
@@ -41,7 +43,8 @@ public class MerchantService {
         String merchantPassword = generateApiKey();
         Merchant merchant = merchantMapper.mapCreateRequestToMerchant(request);
         merchant.setMerchantId(merchantId);
-        merchant.setMerchantPassword(merchantPassword);
+        // Hash the API key before storing (plain text is returned in response DTO)
+        merchant.setMerchantPassword(passwordEncoder.encode(merchantPassword));
         
         // Validate that at least one payment method is provided
         if (request.getPaymentMethodIds() == null || request.getPaymentMethodIds().isEmpty()) {
@@ -91,7 +94,8 @@ public class MerchantService {
         Merchant merchant = merchantRepository.findById(merchantId)
                 .orElseThrow(() -> new MerchantNotFoundException("Merchant not found with ID: " + merchantId));
         String newPassword = generateApiKey();
-        merchant.setMerchantPassword(newPassword);
+        // Hash the new API key before storing (plain text is returned in response DTO)
+        merchant.setMerchantPassword(passwordEncoder.encode(newPassword));
 
         merchantRepository.save(merchant);
         return merchantMapper.mapToGeneratePasswordResponse(merchantId, newPassword);
