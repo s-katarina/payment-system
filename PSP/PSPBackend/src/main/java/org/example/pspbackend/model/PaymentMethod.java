@@ -1,5 +1,6 @@
 package org.example.pspbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,6 +32,7 @@ public class PaymentMethod {
     private String serviceUrl;
 
     @ManyToMany(mappedBy = "paymentMethods", fetch = FetchType.LAZY)
+    @JsonIgnore // Prevent recursion when serializing Merchant -> PaymentMethod -> Merchant
     private Set<Merchant> merchants = new HashSet<>();
 }
 

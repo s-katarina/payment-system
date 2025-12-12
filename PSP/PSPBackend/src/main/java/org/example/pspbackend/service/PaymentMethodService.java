@@ -5,10 +5,12 @@ import org.example.pspbackend.dto.paymentmethod.CreatePaymentMethodRequestDTO;
 import org.example.pspbackend.dto.paymentmethod.PaymentMethodResponseDTO;
 import org.example.pspbackend.dto.paymentmethod.UpdatePaymentMethodRequestDTO;
 import org.example.pspbackend.dto.paymentmethod.UpdatePaymentMethodServiceUrlRequestDTO;
+import org.example.pspbackend.exception.MerchantNotFoundException;
 import org.example.pspbackend.exception.PaymentMethodNotFoundException;
 import org.example.pspbackend.mapper.PaymentMethodMapper;
 import org.example.pspbackend.model.Merchant;
 import org.example.pspbackend.model.PaymentMethod;
+import org.example.pspbackend.repository.MerchantRepository;
 import org.example.pspbackend.repository.PaymentMethodRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 public class PaymentMethodService {
 
     private final PaymentMethodRepository paymentMethodRepository;
+    private final MerchantRepository merchantRepository;
     private final PaymentMethodMapper paymentMethodMapper;
 
     @Transactional
@@ -55,8 +58,12 @@ public class PaymentMethodService {
      * Gets all payment methods for the authenticated merchant
      */
     public List<PaymentMethodResponseDTO> getPaymentMethodsForMerchant(Merchant merchant) {
-        // Get payment methods from merchant's ManyToMany relationship
-        return merchant.getPaymentMethods().stream()
+        // Re-fetch merchant to ensure paymentMethods collection is loaded (eagerly)
+        Merchant managedMerchant = merchantRepository.findById(merchant.getMerchantId())
+                .orElseThrow(() -> new MerchantNotFoundException("Merchant not found with ID: " + merchant.getMerchantId()));
+        
+        // paymentMethods is eagerly loaded and merchant was loaded once more to avoid detached entity errors
+        return managedMerchant.getPaymentMethods().stream()
                 .map(paymentMethodMapper::mapPaymentMethodToResponse)
                 .collect(Collectors.toList());
     }

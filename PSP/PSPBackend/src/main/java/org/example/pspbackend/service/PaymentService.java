@@ -6,12 +6,15 @@ import org.example.pspbackend.dto.payment.CreatePaymentResponseDTO;
 import org.example.pspbackend.exception.InvalidMerchantCredentialsException;
 import org.example.pspbackend.model.Merchant;
 import org.example.pspbackend.model.Payment;
+import org.example.pspbackend.model.enums.PaymentStatus;
 import org.example.pspbackend.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
 
 @RequiredArgsConstructor
 @Service
@@ -40,7 +43,9 @@ public class PaymentService {
         payment.setAmount(request.getAmount());
         payment.setCurrency(merchant.getCurrency()); // Use currency from merchant entity
         payment.setMerchantTimestamp(request.getMerchantTimestamp());
+        payment.setCreatedTimestamp(Instant.now().toString()); // Generate ISO timestamp on backend
         payment.setCallbackUrl(request.getCallbackUrl());
+        payment.setPaymentStatus(PaymentStatus.INITIATED); // Set status to INITIATED on creation
 
         Payment savedPayment = paymentRepository.save(payment);
 

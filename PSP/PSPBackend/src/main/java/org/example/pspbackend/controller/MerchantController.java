@@ -46,14 +46,12 @@ public class MerchantController {
         return new ResponseEntity<>(merchant, HttpStatus.OK);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<CreateMerchantResponseDTO> createMerchant(
+    @PostMapping("/register")
+    public ResponseEntity<CreateMerchantResponseDTO> registerMerchant(
             @Valid @RequestBody CreateMerchantRequestDTO request) {
-        log.info("Creating merchant with name: {}", request.getMerchantName());
-        
         CreateMerchantResponseDTO response = merchantService.createMerchant(request);
         
-        log.info("Merchant created successfully with ID: {}", response.getMerchantId());
+        log.info("Merchant registered successfully with ID: {}", response.getMerchantId());
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 

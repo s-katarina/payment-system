@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.pspbackend.model.enums.PaymentStatus;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -36,15 +38,31 @@ public class Payment {
     @Column(name = "merchant_timestamp", nullable = false)
     private String merchantTimestamp;
 
+    
     @Column(name = "callback_url", nullable = false)
     private String callbackUrl;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_status", nullable = false)
+    private PaymentStatus paymentStatus;
 
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt; // Internal timestamp for tracking
+    
+    @Column(name = "created_timestamp", nullable = false)
+    private String createdTimestamp;
+    
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (createdTimestamp == null) {
+            createdTimestamp = Instant.now().toString(); // Generate ISO timestamp if not set
+        }
+        if (paymentStatus == null) {
+            paymentStatus = PaymentStatus.INITIATED;
+        }
     }
 }
 

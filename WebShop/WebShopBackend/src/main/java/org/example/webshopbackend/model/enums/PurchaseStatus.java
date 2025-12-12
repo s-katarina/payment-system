@@ -8,7 +8,8 @@ public enum PurchaseStatus {
     INITIATED("INITIATED"),
     SUCCESS("SUCCESS"),
     FAILURE("FAILURE"),
-    ERROR("ERROR");
+    ERROR("ERROR"),
+    CANCEL("CANCEL");
 
 
     private final String resultName;

@@ -38,7 +38,7 @@ public class Merchant {
     @Column(name = "error_url", nullable = false)
     private String errorUrl;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "merchant_payment_methods",
             joinColumns = @JoinColumn(name = "merchant_id"),

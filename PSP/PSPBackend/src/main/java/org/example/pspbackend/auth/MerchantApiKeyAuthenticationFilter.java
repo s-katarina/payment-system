@@ -51,7 +51,7 @@ public class MerchantApiKeyAuthenticationFilter extends OncePerRequestFilter {
                 if (merchant != null) {
                     // Create authentication object
                     // MERCHANT role to distinguish from ADMIN users
-                    Authentication authentication = new UsernamePasswordAuthenticationToken(
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             merchant, // Principal (the merchant entity)
                             null,     // Credentials (not needed after authentication)
                             Collections.singletonList(new SimpleGrantedAuthority("ROLE_MERCHANT"))
