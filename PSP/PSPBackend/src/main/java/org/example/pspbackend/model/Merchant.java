@@ -16,6 +16,9 @@ public class Merchant {
     @Column(name = "merchant_id", unique = true, nullable = false)
     private String merchantId;
 
+    @Column(name = "merchant_name", nullable = false)
+    private String merchantName;
+
     @Column(name = "merchant_password", nullable = false)
     private String merchantPassword;
 
