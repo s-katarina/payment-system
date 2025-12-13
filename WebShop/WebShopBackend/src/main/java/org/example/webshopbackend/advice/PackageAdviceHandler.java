@@ -1,6 +1,7 @@
 package org.example.webshopbackend.advice;
 
 import org.example.webshopbackend.exception.PackageDoesNotExistByIdException;
+import org.example.webshopbackend.exception.PSPServiceUnavailableException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,6 +15,9 @@ public class PackageAdviceHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-
+    @ExceptionHandler(PSPServiceUnavailableException.class)
+    public ResponseEntity<String> handlePSPServiceUnavailable(PSPServiceUnavailableException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.SERVICE_UNAVAILABLE);
+    }
 
 }

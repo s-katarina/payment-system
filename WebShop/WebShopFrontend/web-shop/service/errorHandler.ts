@@ -134,7 +134,7 @@ export function handleApiError(error: any): ApiError {
 				};
 			case 503:
 				return {
-					message: ERROR_MESSAGES.SERVICE_UNAVAILABLE,
+					message: typeof data === 'string' ? data : (data?.message || ERROR_MESSAGES.SERVICE_UNAVAILABLE),
 					status,
 					code: 'SERVICE_UNAVAILABLE',
 					details: data,

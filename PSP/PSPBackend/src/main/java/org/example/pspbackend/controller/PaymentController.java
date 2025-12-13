@@ -20,7 +20,7 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping("/create")
-    public ResponseEntity<CreatePaymentResponseDTO> createPayment(
+    public ResponseEntity<String> createPayment(
             @RequestHeader(value = "X-Merchant-Id", required = true) String merchantId,
             @RequestHeader(value = "X-API-Key", required = true) String apiKey,
             @Valid @RequestBody CreatePaymentRequestDTO request) {
@@ -31,8 +31,9 @@ public class PaymentController {
         // For now, we'll just use the merchant ID from header
         
         CreatePaymentResponseDTO response = paymentService.createPayment(request, merchantId);
+        String redirectUrl = response.getRedirectUrl();
         
-        log.info("Payment creation successful, redirect URL: {}", response.getRedirectUrl());
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        log.info("Payment creation successful, redirect URL: {}", redirectUrl);
+        return new ResponseEntity<>(redirectUrl, HttpStatus.CREATED);
     }
 }

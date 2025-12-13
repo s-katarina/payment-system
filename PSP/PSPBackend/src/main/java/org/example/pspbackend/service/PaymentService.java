@@ -26,7 +26,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final MerchantRepository merchantRepository;
 
-    @Value("${psp.frontend.url:http://localhost:3001}")
+    @Value("${psp.frontend.url}")
     private String pspFrontendUrl;
 
     @Transactional
@@ -56,7 +56,7 @@ public class PaymentService {
         log.info("Payment created with ID: {}", savedPayment.getId());
 
         // Generate redirect URL to PSP frontend payment method selection page
-        String redirectUrl = String.format("%s/psp/payment/%s?merchantId=%s", 
+        String redirectUrl = String.format("%s/payment/%s?merchantId=%s", 
                 pspFrontendUrl, savedPayment.getId(), merchantId);
 
         log.info("Generated redirect URL: {}", redirectUrl);

@@ -51,8 +51,16 @@ export default function PackageDetailPage() {
       } else {
         toast.success('Purchase initiated successfully!');
       }
-    } catch (error) {
-      toast.error('Failed to purchase package. Please try again.');
+    } catch (error: any) {
+      // Check if error is about payment service being unavailable
+      // The error message from backend will be in error.message
+      const errorMessage = error?.message || '';
+      if (errorMessage.includes('Payment service unavailable at the moment') || 
+          errorMessage.includes('payment service unavailable')) {
+        toast.error('Payment service unavailable at the moment');
+      } else {
+        toast.error(errorMessage || 'Failed to purchase package. Please try again.');
+      }
     } finally {
       setPurchasing(false);
     }
