@@ -61,7 +61,7 @@ public class Payment {
             createdTimestamp = Instant.now().toString(); // Generate ISO timestamp if not set
         }
         if (paymentStatus == null) {
-            paymentStatus = PaymentStatus.INITIATED;
+            paymentStatus = PaymentStatus.CREATED;
         }
     }
 }

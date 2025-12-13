@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { paymentMethodService, PaymentMethod } from '@/service/paymentMethodService';
 import { merchantService } from '@/service/merchantService';
+import { paymentService } from '@/service/paymentService';
 import toast from 'react-hot-toast';
 
 export default function PaymentMethodSelectionPage() {
@@ -50,15 +51,23 @@ export default function PaymentMethodSelectionPage() {
       return;
     }
 
+    if (!merchantId) {
+      toast.error('Merchant ID is required');
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
+      // Call PSP backend to initiate payment
+      await paymentService.initiatePayment(paymentId, merchantId);
+      
       const selectedMethod = paymentMethods.find(m => m.id === selectedPaymentMethodId);
       console.log('Selected payment method:', selectedMethod);
-      toast.success('Payment method selected');
+      toast.success('Payment initiated successfully');
     } catch (err: any) {
       console.error('[PaymentMethodSelection] Error submitting:', err);
-      toast.error(err.message || 'Failed to submit payment method selection');
+      toast.error(err.message || 'Failed to initiate payment');
     } finally {
       setIsSubmitting(false);
     }

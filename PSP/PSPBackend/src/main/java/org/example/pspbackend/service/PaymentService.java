@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.pspbackend.dto.payment.CreatePaymentRequestDTO;
 import org.example.pspbackend.dto.payment.CreatePaymentResponseDTO;
 import org.example.pspbackend.exception.MerchantNotFoundException;
+import org.example.pspbackend.exception.PaymentNotFoundException;
 import org.example.pspbackend.model.Merchant;
 import org.example.pspbackend.model.Payment;
 import org.example.pspbackend.model.enums.PaymentStatus;
@@ -49,7 +50,7 @@ public class PaymentService {
         payment.setCurrency(merchant.getCurrency());
         payment.setMerchantTimestamp(request.getMerchantTimestamp());
         payment.setCallbackUrl(request.getCallbackUrl());
-        payment.setPaymentStatus(PaymentStatus.INITIATED);
+        payment.setPaymentStatus(PaymentStatus.CREATED);
         payment.setCreatedTimestamp(Instant.now().toString());
 
         Payment savedPayment = paymentRepository.save(payment);
@@ -62,5 +63,30 @@ public class PaymentService {
         log.info("Generated redirect URL: {}", redirectUrl);
 
         return new CreatePaymentResponseDTO(redirectUrl);
+    }
+
+    @Transactional
+    public void initiatePayment(UUID paymentId, String merchantId) {
+        log.info("Initiating payment with ID: {} for merchant: {}", paymentId, merchantId);
+
+        // Find payment
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new PaymentNotFoundException("Payment not found with ID: " + paymentId));
+
+        // Validate merchant ID matches
+        if (!payment.getMerchantId().equals(merchantId)) {
+            throw new IllegalArgumentException("Payment does not belong to merchant: " + merchantId);
+        }
+
+        // Validate payment status is CREATED
+        if (payment.getPaymentStatus() != PaymentStatus.CREATED) {
+            throw new IllegalArgumentException("Payment is not in CREATED status. Current status: " + payment.getPaymentStatus());
+        }
+
+        // Update payment status to INITIATED
+        payment.setPaymentStatus(PaymentStatus.INITIATED);
+        paymentRepository.save(payment);
+
+        log.info("Payment {} initiated successfully", paymentId);
     }
 }

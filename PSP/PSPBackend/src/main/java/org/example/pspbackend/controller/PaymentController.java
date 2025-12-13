@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @RestController
 @Slf4j
@@ -35,5 +37,18 @@ public class PaymentController {
         
         log.info("Payment creation successful, redirect URL: {}", redirectUrl);
         return new ResponseEntity<>(redirectUrl, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/initiate")
+    public ResponseEntity<Void> initiatePayment(
+            @RequestHeader(value = "X-Merchant-Id", required = true) String merchantId,
+            @RequestParam(value = "paymentId", required = true) UUID paymentId) {
+        
+        log.info("Received payment initiation request for payment: {} from merchant: {}", paymentId, merchantId);
+        
+        paymentService.initiatePayment(paymentId, merchantId);
+        
+        log.info("Payment initiation successful for payment: {}", paymentId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

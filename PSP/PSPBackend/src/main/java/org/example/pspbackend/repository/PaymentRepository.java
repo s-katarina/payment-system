@@ -13,7 +13,7 @@ import java.util.UUID;
 public interface PaymentRepository extends JpaRepository<Payment, UUID> {
     
     /**
-     * Finds all payments with INITIATED status that were created before the specified time
+     * Finds all payments with the specified status that were created before the specified time
      */
     List<Payment> findByPaymentStatusAndCreatedAtBefore(PaymentStatus paymentStatus, LocalDateTime createdAt);
 }

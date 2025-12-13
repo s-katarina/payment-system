@@ -5,11 +5,12 @@ import lombok.Getter;
 @Getter
 public enum PaymentStatus {
 
+    CREATED("CREATED"),
     INITIATED("INITIATED"),
     SUCCESS("SUCCESS"),
     FAILURE("FAILURE"),
     ERROR("ERROR"),
-    CANCEL("CANCEL");
+    CANCELLED("CANCELLED");
 
     private final String statusName;
 
