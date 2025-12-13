@@ -67,20 +67,43 @@ public class PaymentMethodController {
 
     @GetMapping
     public ResponseEntity<List<PaymentMethodResponseDTO>> getPaymentMethods() {
-        // Get authenticated merchant from SecurityContext
+        // Get authenticated user from SecurityContext
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
-        if (authentication == null || !(authentication.getPrincipal() instanceof Merchant)) {
+        if (authentication == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        Merchant merchant = (Merchant) authentication.getPrincipal();
-        log.info("Fetching payment methods for merchant: {}", merchant.getMerchantId());
+        // Check if user is ADMIN - return all payment methods
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
         
-        List<PaymentMethodResponseDTO> paymentMethods = paymentMethodService.getPaymentMethodsForMerchant(merchant);
-        
-        log.info("Found {} payment methods for merchant: {}", paymentMethods.size(), merchant.getMerchantId());
-        return new ResponseEntity<>(paymentMethods, HttpStatus.OK);
+        if (isAdmin) {
+            log.info("Admin fetching all payment methods");
+            List<PaymentMethodResponseDTO> paymentMethods = paymentMethodService.getAllPaymentMethods();
+            log.info("Found {} payment methods", paymentMethods.size());
+            return new ResponseEntity<>(paymentMethods, HttpStatus.OK);
+        }
+
+        // Otherwise, check if it's a merchant
+        if (authentication.getPrincipal() instanceof Merchant) {
+            Merchant merchant = (Merchant) authentication.getPrincipal();
+            
+            // Additional safety check: ensure merchant is active
+            if (merchant.getActive() == null || !merchant.getActive()) {
+                log.warn("Inactive merchant attempted to access payment methods: {}", merchant.getMerchantId());
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+            
+            log.info("Fetching payment methods for merchant: {}", merchant.getMerchantId());
+            
+            List<PaymentMethodResponseDTO> paymentMethods = paymentMethodService.getPaymentMethodsForMerchant(merchant);
+            
+            log.info("Found {} payment methods for merchant: {}", paymentMethods.size(), merchant.getMerchantId());
+            return new ResponseEntity<>(paymentMethods, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 }
 

@@ -13,20 +13,17 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UpdateMerchantRequestDTO {
 
-    @NotBlank(message = "Merchant name is required")
     private String merchantName;
 
-    @NotBlank(message = "Currency is required")
     private String currency;
 
-    @NotBlank(message = "Success URL is required")
     private String successUrl;
 
-    @NotBlank(message = "Fail URL is required")
     private String failUrl;
 
-    @NotBlank(message = "Error URL is required")
     private String errorUrl;
+
+    private Boolean active;
 
     private List<UUID> paymentMethodIds;
 }

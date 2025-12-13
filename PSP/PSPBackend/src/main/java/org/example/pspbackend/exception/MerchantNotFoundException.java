@@ -6,3 +6,4 @@ public class MerchantNotFoundException extends RuntimeException {
     }
 }
 
+

@@ -1,78 +1,37 @@
 package org.example.pspbackend.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.example.pspbackend.auth.MerchantApiKeyAuthenticationFilter;
+import org.example.pspbackend.config.jwt.JWTAdminAuthFilter;
+import org.example.pspbackend.service.JWTService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.example.pspbackend.auth.MerchantApiKeyAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
 public class SecurityConfig {
 
-    @Value("${psp.admin.username:admin}")
-    private String adminUsername;
-
-    @Value("${psp.admin.password:admin}")
-    private String adminPassword;
-
+    private final JWTService jwtService;
     private final MerchantApiKeyAuthenticationFilter merchantApiKeyAuthenticationFilter;
 
-    public SecurityConfig(MerchantApiKeyAuthenticationFilter merchantApiKeyAuthenticationFilter) {
+    public SecurityConfig(JWTService jwtService,
+                         @Lazy MerchantApiKeyAuthenticationFilter merchantApiKeyAuthenticationFilter) {
+        this.jwtService = jwtService;
         this.merchantApiKeyAuthenticationFilter = merchantApiKeyAuthenticationFilter;
-    }
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            // Add merchant API key authentication filter before other filters
-            .addFilterBefore(merchantApiKeyAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .authorizeHttpRequests(auth -> auth
-                // Merchant endpoints require ADMIN role
-                .requestMatchers("/api/v1/merchant/**").hasRole("ADMIN")
-                // Payment endpoints require MERCHANT role (authenticated via API key in headers)
-                .requestMatchers("/api/v1/payment/**").hasRole("MERCHANT")
-                // Payment method GET endpoint requires MERCHANT role (merchants fetch their own methods)
-                .requestMatchers(HttpMethod.GET, "/api/v1/payment-method").hasRole("MERCHANT")
-                // Payment method create/update endpoints require ADMIN (handled by @PreAuthorize on methods)
-                // All other requests require authentication
-                .anyRequest().authenticated()
-            )
-            .httpBasic(httpBasic -> {});
-
-        return http.build();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        // Create a single admin user from application.properties
-        UserDetails admin = User.builder()
-                .username(adminUsername)
-                .password(passwordEncoder().encode(adminPassword))
-                .roles("ADMIN")
-                .build();
-
-        return new InMemoryUserDetailsManager(admin);
     }
 
     @Bean
@@ -83,14 +42,37 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(false);
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:3001"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        configuration.setMaxAge(3600L);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-}
 
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                // Public endpoints - must be before authenticated() to allow access
+                .requestMatchers("/api/v1/merchant/register").permitAll() // Merchant registration (public)
+                .requestMatchers("/api/v1/auth/login").permitAll() // Admin login endpoint (public)
+                .requestMatchers("/api/v1/auth/test").permitAll() // Test endpoint (public, for debugging)
+                // All other endpoints require authentication (either ADMIN via JWT or MERCHANT via API key)
+                .anyRequest().authenticated()
+            )
+            // Add custom authentication filters before the default authentication filter
+            // JWT admin filter first (so admin can override merchant auth if needed)
+            .addFilterBefore(new JWTAdminAuthFilter(jwtService), UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(merchantApiKeyAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+}

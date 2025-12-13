@@ -19,6 +19,7 @@ public class CreateMerchantResponseDTO {
     private String successUrl;
     private String failUrl;
     private String errorUrl;
+    private Boolean active;
     private List<PaymentMethodResponseDTO> paymentMethods;
 }
 

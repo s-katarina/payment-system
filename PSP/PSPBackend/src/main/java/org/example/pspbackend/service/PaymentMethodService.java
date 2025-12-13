@@ -67,5 +67,14 @@ public class PaymentMethodService {
                 .map(paymentMethodMapper::mapPaymentMethodToResponse)
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Gets all payment methods (for admin users)
+     */
+    public List<PaymentMethodResponseDTO> getAllPaymentMethods() {
+        return paymentMethodRepository.findAll().stream()
+                .map(paymentMethodMapper::mapPaymentMethodToResponse)
+                .collect(Collectors.toList());
+    }
 }
 

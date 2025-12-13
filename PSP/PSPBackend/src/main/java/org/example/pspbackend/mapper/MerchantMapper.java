@@ -33,16 +33,19 @@ public class MerchantMapper {
 
     /**
      * Maps Merchant entity to CreateMerchantResponseDTO
+     * @param merchant The merchant entity
+     * @param plainTextPassword The plain text password (API key) to include in response (only on creation)
      */
-    public CreateMerchantResponseDTO mapMerchantToResponse(Merchant merchant) {
+    public CreateMerchantResponseDTO mapMerchantToResponse(Merchant merchant, String plainTextPassword) {
         CreateMerchantResponseDTO dto = new CreateMerchantResponseDTO();
         dto.setMerchantId(merchant.getMerchantId());
         dto.setMerchantName(merchant.getMerchantName());
-        dto.setMerchantPassword(merchant.getMerchantPassword());
+        dto.setMerchantPassword(plainTextPassword); // Use plain text password (only returned on creation)
         dto.setCurrency(merchant.getCurrency());
         dto.setSuccessUrl(merchant.getSuccessUrl());
         dto.setFailUrl(merchant.getFailUrl());
         dto.setErrorUrl(merchant.getErrorUrl());
+        dto.setActive(merchant.getActive());
         
         // Map payment methods
         if (merchant.getPaymentMethods() != null) {
@@ -69,14 +72,28 @@ public class MerchantMapper {
 
     /**
      * Updates Merchant entity with data from UpdateMerchantRequestDTO
-     * Only updates: name, currency, and URLs (not merchantId or merchantPassword)
+     * Only updates fields that are provided (partial update support)
+     * Does not update: merchantId or merchantPassword
      */
     public void updateMerchantFromDto(Merchant merchant, UpdateMerchantRequestDTO dto) {
-        merchant.setMerchantName(dto.getMerchantName());
-        merchant.setCurrency(dto.getCurrency());
-        merchant.setSuccessUrl(dto.getSuccessUrl());
-        merchant.setFailUrl(dto.getFailUrl());
-        merchant.setErrorUrl(dto.getErrorUrl());
+        if (dto.getMerchantName() != null && !dto.getMerchantName().trim().isEmpty()) {
+            merchant.setMerchantName(dto.getMerchantName().trim());
+        }
+        if (dto.getCurrency() != null && !dto.getCurrency().trim().isEmpty()) {
+            merchant.setCurrency(dto.getCurrency().trim());
+        }
+        if (dto.getSuccessUrl() != null && !dto.getSuccessUrl().trim().isEmpty()) {
+            merchant.setSuccessUrl(dto.getSuccessUrl().trim());
+        }
+        if (dto.getFailUrl() != null && !dto.getFailUrl().trim().isEmpty()) {
+            merchant.setFailUrl(dto.getFailUrl().trim());
+        }
+        if (dto.getErrorUrl() != null && !dto.getErrorUrl().trim().isEmpty()) {
+            merchant.setErrorUrl(dto.getErrorUrl().trim());
+        }
+        if (dto.getActive() != null) {
+            merchant.setActive(dto.getActive());
+        }
     }
 
     /**
@@ -100,6 +117,7 @@ public class MerchantMapper {
         dto.setSuccessUrl(merchant.getSuccessUrl());
         dto.setFailUrl(merchant.getFailUrl());
         dto.setErrorUrl(merchant.getErrorUrl());
+        dto.setActive(merchant.getActive());
         
         // Map payment methods to simplified DTOs
         if (merchant.getPaymentMethods() != null) {

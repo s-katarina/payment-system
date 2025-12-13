@@ -12,3 +12,4 @@ public class GeneratePasswordResponseDTO {
     private String newPassword; // New API key
 }
 
+

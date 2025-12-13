@@ -55,7 +55,8 @@ public class MerchantService {
         merchant.setPaymentMethods(paymentMethods);
         
         Merchant savedMerchant = merchantRepository.save(merchant);
-        return merchantMapper.mapMerchantToResponse(savedMerchant);
+        // Pass the plain text password to the mapper (only returned on creation)
+        return merchantMapper.mapMerchantToResponse(savedMerchant, merchantPassword);
     }
 
     @Transactional
@@ -77,7 +78,8 @@ public class MerchantService {
         }
         
         Merchant updatedMerchant = merchantRepository.save(merchant);
-        return merchantMapper.mapMerchantToResponse(updatedMerchant);
+        // For updates, don't return the password (null is passed)
+        return merchantMapper.mapMerchantToResponse(updatedMerchant, null);
     }
 
     @Transactional

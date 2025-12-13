@@ -53,6 +53,16 @@ public class MerchantApiKeyAuthenticationFilter extends OncePerRequestFilter {
 
                 // Verify API key using BCrypt password matching
                 if (merchant != null && passwordEncoder.matches(apiKey, merchant.getMerchantPassword())) {
+                    // Check if merchant is active
+                    if (merchant.getActive() == null || !merchant.getActive()) {
+                        log.warn("Inactive merchant attempted to access: {}", merchantId);
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        response.setContentType("application/json");
+                        response.setCharacterEncoding("UTF-8");
+                        response.getWriter().write("{\"error\":\"Merchant is inactive\",\"message\":\"This merchant account has been deactivated\"}");
+                        return;
+                    }
+                    
                     // Create authentication object
                     // MERCHANT role to distinguish from ADMIN users
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
