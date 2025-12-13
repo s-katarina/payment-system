@@ -1,9 +1,12 @@
 package org.example.pspbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -14,6 +17,8 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = "paymentMethods")
+@EqualsAndHashCode(exclude = "paymentMethods")
 public class Merchant {
 
     @Id
@@ -47,6 +52,7 @@ public class Merchant {
             joinColumns = @JoinColumn(name = "merchant_id"),
             inverseJoinColumns = @JoinColumn(name = "payment_method_id")
     )
+    @JsonIgnore // Prevent circular serialization (though we use DTOs, this is a safety measure)
     private Set<PaymentMethod> paymentMethods = new HashSet<>();
 }
 

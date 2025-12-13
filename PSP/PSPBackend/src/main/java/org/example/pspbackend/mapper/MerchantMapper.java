@@ -11,6 +11,7 @@ import org.example.pspbackend.model.Merchant;
 import org.example.pspbackend.model.PaymentMethod;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -120,11 +121,15 @@ public class MerchantMapper {
         dto.setActive(merchant.getActive());
         
         // Map payment methods to simplified DTOs
-        if (merchant.getPaymentMethods() != null) {
+        // Always set payment methods list, even if empty, to ensure frontend receives consistent data
+        if (merchant.getPaymentMethods() != null && !merchant.getPaymentMethods().isEmpty()) {
             List<PaymentMethodSimpleDTO> paymentMethodDTOs = merchant.getPaymentMethods().stream()
                     .map(this::mapPaymentMethodToSimpleResponse)
                     .collect(Collectors.toList());
             dto.setPaymentMethods(paymentMethodDTOs);
+        } else {
+            // Set empty list if no payment methods to ensure consistent response structure
+            dto.setPaymentMethods(new ArrayList<>());
         }
         
         return dto;

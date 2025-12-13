@@ -2,9 +2,8 @@ package org.example.pspbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 
 import java.util.HashSet;
 import java.util.Set;
@@ -15,6 +14,8 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = "merchants")
+@EqualsAndHashCode(exclude = "merchants")
 public class PaymentMethod {
 
     @Id

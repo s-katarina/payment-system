@@ -4,12 +4,14 @@ import { API_PREFIX } from "./apiConstants";
 export interface PaymentMethod {
   id: string;
   name: string;
-  serviceUrl?: string;
+  serviceName: string;
+  serviceUrl: string;
 }
 
 export interface CreatePaymentMethodRequest {
   name: string;
-  serviceUrl?: string;
+  serviceName: string;
+  serviceUrl: string;
 }
 
 export interface UpdatePaymentMethodRequest {

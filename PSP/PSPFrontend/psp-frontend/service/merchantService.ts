@@ -1,11 +1,18 @@
 import { apiService } from "./api";
 import { API_PREFIX } from "./apiConstants";
 
+export interface PaymentMethodSimple {
+  id: string;
+  name: string;
+  serviceName: string;
+}
+
 export interface Merchant {
   merchantId: string;
   merchantName: string;
   merchantPassword?: string;
   active: boolean;
+  paymentMethods?: PaymentMethodSimple[];
 }
 
 export interface CreateMerchantRequest {
@@ -26,6 +33,7 @@ export interface CreateMerchantResponse {
 export interface UpdateMerchantRequest {
   merchantName?: string;
   active?: boolean;
+  paymentMethodIds?: string[];
 }
 
 export interface GeneratePasswordResponse {

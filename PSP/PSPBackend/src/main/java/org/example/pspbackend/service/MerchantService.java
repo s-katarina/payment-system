@@ -1,6 +1,7 @@
 package org.example.pspbackend.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.pspbackend.dto.merchant.CreateMerchantRequestDTO;
 import org.example.pspbackend.dto.merchant.CreateMerchantResponseDTO;
 import org.example.pspbackend.dto.merchant.GeneratePasswordResponseDTO;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class MerchantService {
 
     private final MerchantRepository merchantRepository;
@@ -73,12 +75,24 @@ public class MerchantService {
                 throw new IllegalArgumentException("At least one payment method is required. Cannot clear all payment methods.");
             }
             
-            Set<PaymentMethod> paymentMethods = validateAndFetchPaymentMethods(request.getPaymentMethodIds());
-            merchant.setPaymentMethods(paymentMethods);
+            // Get current payment method IDs to check if update is needed
+            Set<UUID> currentPaymentMethodIds = merchant.getPaymentMethods().stream()
+                    .map(PaymentMethod::getId)
+                    .collect(Collectors.toSet());
+            
+            // Convert request IDs to Set for comparison
+            Set<UUID> requestedPaymentMethodIds = new HashSet<>(request.getPaymentMethodIds());
+            
+            // Only update if payment methods have actually changed
+            if (!currentPaymentMethodIds.equals(requestedPaymentMethodIds)) {
+                Set<PaymentMethod> paymentMethods = validateAndFetchPaymentMethods(request.getPaymentMethodIds());
+                merchant.getPaymentMethods().clear();
+                merchant.getPaymentMethods().addAll(paymentMethods);
+            }
         }
         
         Merchant updatedMerchant = merchantRepository.save(merchant);
-        // For updates, don't return the password (null is passed)
+        // For updates, password is not returned
         return merchantMapper.mapMerchantToResponse(updatedMerchant, null);
     }
 
@@ -119,7 +133,8 @@ public class MerchantService {
      * Gets all merchants (without passwords)
      */
     public List<MerchantResponseDTO> getAllMerchants() {
-        return merchantRepository.findAll().stream()
+        // Use custom query with JOIN FETCH to ensure payment methods are loaded
+        return merchantRepository.findAllWithPaymentMethods().stream()
                 .map(merchantMapper::mapMerchantToResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -128,8 +143,19 @@ public class MerchantService {
      * Gets a merchant by ID (without password)
      */
     public MerchantResponseDTO getMerchantById(String merchantId) {
-        Merchant merchant = merchantRepository.findById(merchantId)
+        // Use custom query with JOIN FETCH to ensure payment methods are loaded
+        Merchant merchant = merchantRepository.findByIdWithPaymentMethods(merchantId)
                 .orElseThrow(() -> new MerchantNotFoundException("Merchant not found with ID: " + merchantId));
+        
+        // Force initialization of payment methods collection
+        // Accessing the collection size forces JPA to load it if not already loaded
+        if (merchant.getPaymentMethods() != null) {
+            int paymentMethodCount = merchant.getPaymentMethods().size();
+            log.info("Merchant {} has {} payment methods", merchantId, paymentMethodCount);
+        } else {
+            log.warn("Merchant {} has null payment methods collection", merchantId);
+        }
+        
         return merchantMapper.mapMerchantToResponseDTO(merchant);
     }
 

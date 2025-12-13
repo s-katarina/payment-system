@@ -15,8 +15,8 @@ const getBackendUrl = () => {
 		return envUrl;
 	}
 
-	// Default to localhost:8081 (PSP Spring Boot backend) if no environment variable is set
-	const defaultUrl = 'http://localhost:8081';
+	// Default to localhost:8090 (nginx API gateway) if no environment variable is set
+	const defaultUrl = 'http://localhost:8090';
 	console.warn(
 		'[API] No NEXT_PUBLIC_BACKEND_URL found, using default:',
 		defaultUrl
